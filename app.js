@@ -4,6 +4,8 @@ require('dotenv').config();
 
 const app = express();
 
+const userRoutes = require('./routes/user');
+
 mongoose
   .connect(process.env.MONGOOSE_URL, {
     useNewUrlParser: true,
@@ -26,5 +28,7 @@ app.use((req, res, next) => {
   );
   next();
 });
+
+app.use('/api/auth', userRoutes);
 
 module.exports = app;
