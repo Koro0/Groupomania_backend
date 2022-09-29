@@ -1,5 +1,6 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const cors = require('cors');
 require('dotenv').config();
 
 const app = express();
@@ -15,6 +16,7 @@ mongoose
   .catch(() => console.log('Connexion à MongoDB échouée !'));
 
 app.use(express.json());
+app.use(cors());
 
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*');

@@ -29,7 +29,7 @@ exports.signUp = async (req, res) => {
  * @param {string} res token is valided to 24 hours
  * @return access all Sauces
  */
-exports.login = (req, res) => {
+exports.logIn = (req, res) => {
   User.findOne({ email: req.body.email })
     .then((user) => {
       if (!user) {
