@@ -2,10 +2,13 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 require('dotenv').config();
+const path = require('path');
+
 
 const app = express();
 
 const userRoutes = require('./routes/user');
+const postRoutes = require('./routes/post');
 
 mongoose
   .connect(process.env.MONGOOSE_URL, {
@@ -32,5 +35,9 @@ app.use((req, res, next) => {
 });
 
 app.use('/api/auth', userRoutes);
+
+
+app.use('/api/posts', postRoutes);
+app.use('/images', express.static(path.join(__dirname, 'images')));
 
 module.exports = app;
