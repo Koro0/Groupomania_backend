@@ -36,7 +36,7 @@ exports.getOnePost = (req, res, next) => {
         .then((post) => res.status(200).json(post))
         .catch((error) => res.status(400).json({ error }));
 };
-auce = (req, res, next) => {
+exports.getAllPost = (req, res, next) => {
     const img = './images';
     !fs.existsSync(img)
         ? fs.mkdir(img, { recursive: true }, (err) => {
