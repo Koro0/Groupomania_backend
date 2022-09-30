@@ -62,7 +62,7 @@ exports.deletePost = (req, res, next) => {
 };
 
 
-exports.PostLike = async (req, res, next) => {
+exports.postLike = async (req, res, next) => {
     const postLiked = await Post.findOne({ _id: req.params.id });
     let usersLikedTab = postLiked.usersLiked;
     let usersDislikedTab = postLiked.usersDisliked;
