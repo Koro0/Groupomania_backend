@@ -27,7 +27,7 @@ exports.signUp = async (req, res) => {
  * connexion / login
  * @param {string} req post user.id => email and token: PSW
  * @param {string} res token is valided to 24 hours
- * @return access all Sauces
+ * @return access all posts
  */
 exports.logIn = (req, res) => {
   User.findOne({ email: req.body.email })
