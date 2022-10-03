@@ -15,11 +15,12 @@ exports.signUp = async (req, res) => {
     const user = new User({
       email: req.body.email,
       password: hashedPassword,
+      admin: false,
     });
     await user.save();
     res.status(201).json({ message: 'Utilisateur créé!' });
   } catch (error) {
-    res.status(400).json({ error: 'email existed' });
+    res.status(400).json({ error: 'Email existed' });
   }
 };
 
