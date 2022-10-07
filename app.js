@@ -4,7 +4,6 @@ const cors = require('cors');
 require('dotenv').config();
 const path = require('path');
 
-
 const app = express();
 
 const userRoutes = require('./routes/user');
@@ -35,7 +34,6 @@ app.use((req, res, next) => {
 });
 
 app.use('/api/auth', userRoutes);
-
 
 app.use('/api/posts', postRoutes);
 app.use('/images', express.static(path.join(__dirname, 'images')));
