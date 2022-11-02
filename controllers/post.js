@@ -45,7 +45,7 @@ exports.getAllPost = (req, res, next) => {
     ? fs.mkdir(img, { recursive: true }, (err) => {
         if (err) throw err;
       })
-    : console.log('img_folder existed');
+    : null;
   Post.find()
     .then((posts) => res.status(200).json(posts))
     .catch((error) => res.status(400).json({ error: error }));
