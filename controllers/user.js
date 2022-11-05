@@ -55,3 +55,4 @@ exports.logIn = (req, res) => {
     })
     .catch((error) => res.status(500).json({ error: 'err login' }));
 };
+// create parametre to return on page home after logIn success
