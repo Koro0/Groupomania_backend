@@ -2,7 +2,8 @@ const Post = require('../models/Post');
 const fs = require('fs');
 
 exports.createPost = (req, res, next) => {
-  const postObjet = JSON.parse(req.body.post);
+  console.log(JSON.parse(req));
+  const postObjet = req.body;
   const post = new Post({
     ...postObjet,
     imageUrl: `${req.protocol}://${req.get('host')}/images/${
