@@ -66,7 +66,6 @@ exports.deletePost = (req, res, next) => {
 exports.postLike = async (req, res, next) => {
   const postLiked = await Post.findOne({ _id: req.params.id });
   let usersLikedTab = postLiked.usersLiked;
-  console.log(usersLikedTab);
   //passe en boucle le tableau likes
   const userIsInLiked = usersLikedTab.includes(req.body.userId);
   if (userIsInLiked == false && req.body.like == 1) {
