@@ -10,9 +10,7 @@ exports.createPost = (req, res, next) => {
       req.file.filename
     }`,
     likes: 0,
-    dislikes: 0,
-    usersLiked: [],
-    usersDisliked: [],
+    usersLiked: [{}],
     updateDate: Date(),
   });
   post
@@ -68,57 +66,28 @@ exports.deletePost = (req, res, next) => {
 exports.postLike = async (req, res, next) => {
   const postLiked = await Post.findOne({ _id: req.params.id });
   let usersLikedTab = postLiked.usersLiked;
-  let usersDislikedTab = postLiked.usersDisliked;
-
+  console.log(usersLikedTab);
   //passe en boucle le tableau likes
   const userIsInLiked = usersLikedTab.includes(req.body.userId);
-  //passe en boucle le tableau dislikes
-  const userIsInDiskiked = usersDislikedTab.includes(req.body.userId);
-  if (userIsInLiked == false && userIsInDiskiked == false) {
-    if (req.body.like == 1) {
-      Post.findOneAndUpdate(
-        { _id: req.params.id },
-        {
-          likes: postLiked.likes + 1,
-          usersLiked: postLiked.usersLiked.concat([req.body.userId]),
-        }
-      )
-        .then(() => res.status(200).json({ message: 'liked' }))
-        .catch((error) => res.status(400).json({ error }));
-    } else if (req.body.like == -1) {
-      Post.findOneAndUpdate(
-        { _id: req.params.id },
-        {
-          likes: postLiked.dislikes + 1,
-          usersLiked: postLiked.usersLiked.concat([req.body.userId]),
-        }
-      )
-        .then(() => res.status(200).json({ message: 'disliked' }))
-        .catch((error) => res.status(400).json({ error }));
-    }
-  } else {
-    if (req.body.like == 0) {
-      Post.findOneAndUpdate(
-        { _id: req.params.id },
-        {
-          likes: postLiked.likes - 1,
-          usersLiked: postLiked.usersLiked.filter((e) => e !== req.body.userId),
-        }
-      )
-        .then(() => res.status(200).json({ message: 'delete liked' }))
-        .catch((error) => res.status(400).json({ error }));
-    } else if (req.body.like == -1) {
-      Post.findOneAndUpdate(
-        { _id: req.params.id },
-        {
-          dislikes: postLiked.dislikes - 1, // blocker a 0 like minimum
-          usersDisliked: postLiked.usersDisliked.filter(
-            (e) => e !== req.body.userId
-          ),
-        }
-      )
-        .then(() => res.status(200).json({ message: 'delete disliked' }))
-        .catch((error) => res.status(400).json({ error }));
-    }
+  if (userIsInLiked == false && req.body.like == 1) {
+    Post.findOneAndUpdate(
+      { _id: req.params.id },
+      {
+        likes: postLiked.likes + 1,
+        usersLiked: postLiked.usersLiked.concat([req.body.userId]),
+      }
+    )
+      .then(() => res.status(200).json({ message: 'liked' }))
+      .catch((error) => res.status(400).json({ error }));
+  } else if (userIsInLiked === true && req.body.like == 1) {
+    Post.findOneAndUpdate(
+      { _id: req.params.id },
+      {
+        likes: postLiked.likes - 1,
+        usersLiked: postLiked.usersLiked.filter((e) => e !== req.body.userId),
+      }
+    )
+      .then(() => res.status(200).json({ message: 'delete liked' }))
+      .catch((error) => res.status(400).json({ error }));
   }
 };
