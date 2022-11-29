@@ -3,7 +3,7 @@ const fs = require('fs');
 
 exports.createPost = (req, res, next) => {
   console.log(JSON.parse(req));
-  const postObjet = req.body;
+  const postObjet = JSON.parse(req.body.post);
   const post = new Post({
     ...postObjet,
     imageUrl: `${req.protocol}://${req.get('host')}/images/${
@@ -11,7 +11,8 @@ exports.createPost = (req, res, next) => {
     }`,
     likes: 0,
     usersLiked: [{}],
-    updateDate: Date(),
+    comments: [{}],
+    updateDate: Date.now(),
   });
   post
     .save()
@@ -89,4 +90,16 @@ exports.postLike = async (req, res, next) => {
       .then(() => res.status(200).json({ message: 'delete liked' }))
       .catch((error) => res.status(400).json({ error }));
   }
+};
+
+exports.postComment = async (req, res, next) => {
+  const postComments = await Post.findOne({ _id: req.params.id });
+  Post.findOneAndUpdate(
+    { _id: req.params.id },
+    {
+      comment: postComments.comments.concat([req.body]),
+    }
+  )
+    .then(() => res.status(201).json({ message: 'Send Comment' }))
+    .catch((err) => res.status(400).json({ err }));
 };
