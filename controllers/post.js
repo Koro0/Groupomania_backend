@@ -2,17 +2,21 @@ const Post = require('../models/Post');
 const fs = require('fs');
 
 exports.createPost = (req, res, next) => {
-  console.log(JSON.parse(req));
-  const postObjet = JSON.parse(req.body.post);
+  const d = new Date();
+  const date = d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate();
+  const hours = d.getHours() + ':' + d.getMinutes() + ':' + d.getSeconds();
+  const fullDate = date + ' ' + hours;
+  const postObjet = req.body;
   const post = new Post({
     ...postObjet,
     imageUrl: `${req.protocol}://${req.get('host')}/images/${
       req.file.filename
     }`,
+    userId: req.auth.userId,
     likes: 0,
-    usersLiked: [{}],
-    comments: [{}],
-    updateDate: Date.now(),
+    usersLiked: [],
+    comments: [],
+    updateDate: fullDate,
   });
   post
     .save()
@@ -94,6 +98,7 @@ exports.postLike = async (req, res, next) => {
 
 exports.postComment = async (req, res, next) => {
   const postComments = await Post.findOne({ _id: req.params.id });
+  console.log(req.body, postComments);
   Post.findOneAndUpdate(
     { _id: req.params.id },
     {
@@ -102,4 +107,10 @@ exports.postComment = async (req, res, next) => {
   )
     .then(() => res.status(201).json({ message: 'Send Comment' }))
     .catch((err) => res.status(400).json({ err }));
+};
+
+exports.getComments = async (req, res, next) => {
+  await Post.findOne({ _id: req.params.id }).then((result) =>
+    res.json(result.comments)
+  );
 };
