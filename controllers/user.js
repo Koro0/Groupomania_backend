@@ -14,6 +14,7 @@ exports.signUp = async (req, res) => {
     const hashedPassword = await bcrypt.hash(req.body.password, 18);
     const user = new User({
       email: req.body.email,
+      name: req.body.firstname + '.' + req.body.lastname,
       password: hashedPassword,
       admin: false,
     });
@@ -55,4 +56,17 @@ exports.logIn = (req, res) => {
     })
     .catch((error) => res.status(500).json({ error: 'err login' }));
 };
-// create parametre to return on page home after logIn success
+
+//get and put pseudo
+exports.getPseudo = async (req, res, next) => {
+  const user = await User.findOne({ _id: req.auth.userId });
+  User.findOne({ _id: req.auth.userId })
+    .then((user) => res.status(200).json(user.pseudo))
+    .catch((err) => res.status(400).json(err));
+};
+
+exports.checkAdmin = async (req, res, next) => {
+  User.findOne({ _id: req.auth.userId })
+    .then((user) => res.status(200).json(user.admin))
+    .catch((err) => res.status(400).json(err));
+};
