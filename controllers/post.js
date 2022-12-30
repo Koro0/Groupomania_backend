@@ -1,12 +1,10 @@
 const Post = require('../models/Post');
+const User = require('../models/user');
 const fs = require('fs');
 
 exports.createPost = (req, res, next) => {
-  const d = new Date();
-  const date = d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate();
-  const hours = d.getHours() + ':' + d.getMinutes() + ':' + d.getSeconds();
-  const fullDate = date + ' ' + hours;
   const postObjet = req.body;
+  console.log(postObjet);
   const post = new Post({
     ...postObjet,
     imageUrl: `${req.protocol}://${req.get('host')}/images/${
@@ -16,7 +14,7 @@ exports.createPost = (req, res, next) => {
     likes: 0,
     usersLiked: [],
     comments: [],
-    updateDate: fullDate,
+    updateDate: Date.now(),
   });
   post
     .save()
@@ -27,7 +25,7 @@ exports.createPost = (req, res, next) => {
 exports.modifyPost = (req, res, next) => {
   const postObjet = req.file
     ? {
-        ...JSON.parse(req.body.post),
+        ...JSON.parse(req.body),
         imageUrl: `${req.protocol}:${req.get('host')}/images/${
           req.file.filename
         }`,
@@ -72,13 +70,13 @@ exports.postLike = async (req, res, next) => {
   const postLiked = await Post.findOne({ _id: req.params.id });
   let usersLikedTab = postLiked.usersLiked;
   //passe en boucle le tableau likes
-  const userIsInLiked = usersLikedTab.includes(req.body.userId);
+  const userIsInLiked = usersLikedTab.includes(req.auth.userId);
   if (userIsInLiked == false && req.body.like == 1) {
     Post.findOneAndUpdate(
       { _id: req.params.id },
       {
         likes: postLiked.likes + 1,
-        usersLiked: postLiked.usersLiked.concat([req.body.userId]),
+        usersLiked: postLiked.usersLiked.concat([req.auth.userId]),
       }
     )
       .then(() => res.status(200).json({ message: 'liked' }))
@@ -88,7 +86,7 @@ exports.postLike = async (req, res, next) => {
       { _id: req.params.id },
       {
         likes: postLiked.likes - 1,
-        usersLiked: postLiked.usersLiked.filter((e) => e !== req.body.userId),
+        usersLiked: postLiked.usersLiked.filter((e) => e !== req.auth.userId),
       }
     )
       .then(() => res.status(200).json({ message: 'delete liked' }))
@@ -97,12 +95,19 @@ exports.postLike = async (req, res, next) => {
 };
 
 exports.postComment = async (req, res, next) => {
+  const d = new Date();
+  let date = d.toLocaleDateString();
+  let hours = d.toLocaleTimeString();
+  const fullDate = date + ' ' + hours;
   const postComments = await Post.findOne({ _id: req.params.id });
-  console.log(req.body, postComments);
+  console.log(postComments.comments);
+  const user = await User.findOne({ _id: req.auth.userId });
   Post.findOneAndUpdate(
     { _id: req.params.id },
     {
-      comment: postComments.comments.concat([req.body]),
+      comments: postComments.comments.concat([
+        { user: user.name, comment: req.body.commentaire, date: fullDate },
+      ]),
     }
   )
     .then(() => res.status(201).json({ message: 'Send Comment' }))
@@ -112,5 +117,11 @@ exports.postComment = async (req, res, next) => {
 exports.getComments = async (req, res, next) => {
   await Post.findOne({ _id: req.params.id }).then((result) =>
     res.json(result.comments)
+  );
+};
+
+exports.getLikes = async (req, res, next) => {
+  await Post.findOne({ _id: req.params.id }).then((result) =>
+    res.json(result.likes)
   );
 };
