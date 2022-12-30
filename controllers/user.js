@@ -58,10 +58,10 @@ exports.logIn = (req, res) => {
 };
 
 //get and put pseudo
-exports.getPseudo = async (req, res, next) => {
+exports.getName = async (req, res, next) => {
   const user = await User.findOne({ _id: req.auth.userId });
   User.findOne({ _id: req.auth.userId })
-    .then((user) => res.status(200).json(user.pseudo))
+    .then((user) => res.status(200).json(user.name))
     .catch((err) => res.status(400).json(err));
 };
 
