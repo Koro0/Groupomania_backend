@@ -4,8 +4,17 @@ const fs = require('fs');
 
 exports.createPost = (req, res, next) => {
   const postObjet = req.body;
-  console.log(postObjet);
-  const post = new Post({
+  console.log(req.body);
+  const postWithOutFile = {
+    ...postObjet,
+    imageUrl: '',
+    userId: req.auth.userId,
+    likes: 0,
+    usersLiked: [],
+    comments: [],
+    updateDate: Date.now(),
+  };
+  const postWithFile = {
     ...postObjet,
     imageUrl: `${req.protocol}://${req.get('host')}/images/${
       req.file.filename
@@ -15,14 +24,16 @@ exports.createPost = (req, res, next) => {
     usersLiked: [],
     comments: [],
     updateDate: Date.now(),
-  });
+  };
+  console.log(req.file);
+  const post = new Post(req.file ? { postWithFile } : { postWithOutFile });
   post
     .save()
     .then(() => res.status(200).json({ message: 'Post enregistrée !' }))
     .catch((error) => res.status(400).json({ error }));
 };
 
-exports.modifyPost = (req, res, next) => {
+exports.modifyPost = async (req, res, next) => {
   console.log(req.body);
   const postObjet = req.file
     ? {
@@ -32,7 +43,21 @@ exports.modifyPost = (req, res, next) => {
         }`,
       }
     : { ...req.body };
-  Post.updateOne({ _id: req.params.id }, { ...postObjet, _id: req.params.id })
+
+  if (req.file) {
+    await Post.findOne({ _id: req.params.id }).then((file) => {
+      const filename = file.imageUrl.split('/images/')[1];
+      console.log(filename);
+      fs.unlink(`images/${filename}`, () => {
+        console.log('deleted image');
+      });
+    });
+  }
+  console.log(postObjet);
+  await Post.updateOne(
+    { _id: req.params.id },
+    { ...postObjet, _id: req.params.id }
+  )
     .then(() => res.status(200).json({ message: 'Post modifiée !' }))
     .catch((error) => res.status(400).json({ error }));
 };
