@@ -56,15 +56,24 @@ exports.logIn = (req, res) => {
     })
     .catch((error) => res.status(500).json({ error: 'err login' }));
 };
-
-//get and put pseudo
+/**
+ *
+ * @param {*} req recupere userId via le tokken
+ * @param {*} res return le name de l'utilisateur connecté
+ * @param {*} next
+ */
 exports.getName = async (req, res, next) => {
-  const user = await User.findOne({ _id: req.auth.userId });
   User.findOne({ _id: req.auth.userId })
     .then((user) => res.status(200).json(user.name))
     .catch((err) => res.status(400).json(err));
 };
 
+/**
+ *
+ * @param {*} req recupere userId via le tokken
+ * @param {*} res return le chaamp admin de l'utilisateur connecté
+ * @param {*} next
+ */
 exports.checkAdmin = async (req, res, next) => {
   User.findOne({ _id: req.auth.userId })
     .then((user) => res.status(200).json(user.admin))

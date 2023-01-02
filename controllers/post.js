@@ -2,6 +2,12 @@ const Post = require('../models/Post');
 const User = require('../models/user');
 const fs = require('fs');
 
+/**
+ *
+ * @param {string, file} req  recois du texte: title, description, image ou juste title et description
+ * @param {*} res si ca rempli les condition, return que le post est creer
+ * @param {*} next
+ */
 exports.createPost = (req, res, next) => {
   const postObjet = req.body;
   let post;
@@ -33,7 +39,12 @@ exports.createPost = (req, res, next) => {
     .then(() => res.status(200).json({ message: 'Post enregistrée !' }))
     .catch((error) => res.status(400).json({ error }));
 };
-
+/**
+ *
+ * @param {string, file} req  recoit une nouvelle image et supprime l'ancienne ou recoit du texte ou les deux
+ * @param {*} res return message post modifier
+ * @param {*} next
+ */
 exports.modifyPost = async (req, res, next) => {
   const postObjet = req.file
     ? {
@@ -63,11 +74,24 @@ exports.modifyPost = async (req, res, next) => {
     .catch((error) => res.status(400).json({ error }));
 };
 
+/**
+ *
+ * @param {*} req recoit _id post
+ * @param {*} res return les données du post
+ * @param {*} next
+ */
 exports.getOnePost = (req, res, next) => {
   Post.findOne({ _id: req.params.id })
     .then((post) => res.status(200).json(post))
     .catch((error) => res.status(400).json({ error }));
 };
+
+/**
+ *
+ * @param {*} req
+ * @param {*} res return tous les données de posts trouvant dans la base de données
+ * @param {*} next
+ */
 exports.getAllPost = (req, res, next) => {
   const img = './images';
   !fs.existsSync(img)
@@ -80,6 +104,12 @@ exports.getAllPost = (req, res, next) => {
     .catch((error) => res.status(400).json({ error: error }));
 };
 
+/**
+ *
+ * @param {*} req recoit _id du post
+ * @param {*} res verifie le post contient une image, si oui, supprimer le post post avec l'image stoké, sinon, juste le post
+ * @param {*} next
+ */
 exports.deletePost = (req, res, next) => {
   Post.findOne({ _id: req.params.id })
     .then((post) => {
@@ -99,6 +129,12 @@ exports.deletePost = (req, res, next) => {
     .catch((error) => res.status(500).json({ error: 'error delete' }));
 };
 
+/**
+ *
+ * @param {*} req recoit _id du post et recupere id de l'utilisateur connecter via son token
+ * @param {*} res  si userId existe dans le tableau de like, elle sera supprimer et on retire -1 de likes, dans le cas contre, nous ajoutons +1 a likes et userId dans le tableau des likes
+ * @param {*} next
+ */
 exports.postLike = async (req, res, next) => {
   const postLiked = await Post.findOne({ _id: req.params.id });
   let usersLikedTab = postLiked.usersLiked;
@@ -127,6 +163,12 @@ exports.postLike = async (req, res, next) => {
   }
 };
 
+/**
+ *
+ * @param {string} req recoit _id post, userId via token et commentaire
+ * @param {*} res données rrecu concat avec les données existant en ajoutant le name de l'utilisateur et la date de son commentaire
+ * @param {*} next
+ */
 exports.postComment = async (req, res, next) => {
   const d = new Date();
   let date = d.toLocaleDateString();
@@ -147,12 +189,24 @@ exports.postComment = async (req, res, next) => {
     .catch((err) => res.status(400).json({ err }));
 };
 
+/**
+ *
+ * @param {string} req recupere id post
+ * @param {string} res return tous le contenu comments du post
+ * @param {*} next
+ */
 exports.getComments = async (req, res, next) => {
   await Post.findOne({ _id: req.params.id }).then((result) =>
     res.json(result.comments)
   );
 };
 
+/**
+ *
+ * @param {number} req id du post
+ * @param {*} res return tous les likes et tableau de likes du post concerné
+ * @param {*} next
+ */
 exports.getLikes = async (req, res, next) => {
   await Post.findOne({ _id: req.params.id }).then((result) =>
     res.json(result.likes)
