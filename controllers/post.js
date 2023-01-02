@@ -35,11 +35,10 @@ exports.createPost = (req, res, next) => {
 };
 
 exports.modifyPost = async (req, res, next) => {
-  console.log(req.body);
   const postObjet = req.file
     ? {
         ...req.body,
-        imageUrl: `${req.protocol}:${req.get('host')}/images/${
+        imageUrl: `${req.protocol}://${req.get('host')}/images/${
           req.file.filename
         }`,
       }
