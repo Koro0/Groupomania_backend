@@ -47,14 +47,15 @@ exports.modifyPost = async (req, res, next) => {
 
   if (req.file) {
     await Post.findOne({ _id: req.params.id }).then((file) => {
-      const filename = file.imageUrl.split('/images/')[1];
-      console.log(filename);
-      fs.unlink(`images/${filename}`, () => {
-        console.log('deleted image');
-      });
+      if (file.imageUrl !== null) {
+        const filename = file.imageUrl.split('/images/')[1];
+        console.log(filename);
+        fs.unlink(`images/${filename}`, () => {
+          console.log('deleted image');
+        });
+      }
     });
   }
-  console.log(postObjet);
   await Post.updateOne(
     { _id: req.params.id },
     { ...postObjet, _id: req.params.id }
@@ -83,12 +84,18 @@ exports.getAllPost = (req, res, next) => {
 exports.deletePost = (req, res, next) => {
   Post.findOne({ _id: req.params.id })
     .then((post) => {
-      const filename = post.imageUrl.split('/images/')[1];
-      fs.unlink(`images/${filename}`, () => {
+      if (post.imageUrl == null) {
         Post.deleteOne({ _id: req.params.id })
           .then(() => res.status(200).json({ message: 'Post supprimé !' }))
           .catch((error) => res.status(400).json({ error }));
-      });
+      } else {
+        const filename = post.imageUrl.split('/images/')[1];
+        fs.unlink(`images/${filename}`, () => {
+          Post.deleteOne({ _id: req.params.id })
+            .then(() => res.status(200).json({ message: 'Post supprimé !' }))
+            .catch((error) => res.status(400).json({ error }));
+        });
+      }
     })
     .catch((error) => res.status(500).json({ error: 'error delete' }));
 };
