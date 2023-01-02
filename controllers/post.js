@@ -4,29 +4,30 @@ const fs = require('fs');
 
 exports.createPost = (req, res, next) => {
   const postObjet = req.body;
-  console.log(req.body);
-  const postWithOutFile = {
-    ...postObjet,
-    imageUrl: '',
-    userId: req.auth.userId,
-    likes: 0,
-    usersLiked: [],
-    comments: [],
-    updateDate: Date.now(),
-  };
-  const postWithFile = {
-    ...postObjet,
-    imageUrl: `${req.protocol}://${req.get('host')}/images/${
-      req.file.filename
-    }`,
-    userId: req.auth.userId,
-    likes: 0,
-    usersLiked: [],
-    comments: [],
-    updateDate: Date.now(),
-  };
-  console.log(req.file);
-  const post = new Post(req.file ? { postWithFile } : { postWithOutFile });
+  let post;
+  if (req.file == null) {
+    post = new Post({
+      ...postObjet,
+      imageUrl: null,
+      userId: req.auth.userId,
+      likes: 0,
+      usersLiked: [],
+      comments: [],
+      updateDate: Date.now(),
+    });
+  } else {
+    post = new Post({
+      ...postObjet,
+      imageUrl: `${req.protocol}://${req.get('host')}/images/${
+        req.file.filename
+      }`,
+      userId: req.auth.userId,
+      likes: 0,
+      usersLiked: [],
+      comments: [],
+      updateDate: Date.now(),
+    });
+  }
   post
     .save()
     .then(() => res.status(200).json({ message: 'Post enregistrée !' }))
