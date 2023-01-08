@@ -59,7 +59,6 @@ exports.modifyPost = async (req, res, next) => {
     await Post.findOne({ _id: req.params.id }).then((file) => {
       if (file.imageUrl !== null) {
         const filename = file.imageUrl.split('/images/')[1];
-        console.log(filename);
         fs.unlink(`images/${filename}`, () => {
           console.log('deleted image');
         });
