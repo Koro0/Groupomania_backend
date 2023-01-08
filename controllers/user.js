@@ -14,6 +14,7 @@ exports.signUp = async (req, res) => {
     const hashedPassword = await bcrypt.hash(req.body.password, 18);
     const user = new User({
       email: req.body.email,
+      name: req.body.firstname + '.' + req.body.lastname,
       password: hashedPassword,
       admin: false,
     });
@@ -54,4 +55,27 @@ exports.logIn = (req, res) => {
         .catch((error) => res.status(500).json({ error: 'error bcrypt' }));
     })
     .catch((error) => res.status(500).json({ error: 'err login' }));
+};
+/**
+ *
+ * @param {*} req recupere userId via le tokken
+ * @param {*} res return le name de l'utilisateur connecté
+ * @param {*} next
+ */
+exports.getName = async (req, res, next) => {
+  User.findOne({ _id: req.auth.userId })
+    .then((user) => res.status(200).json(user.name))
+    .catch((err) => res.status(400).json(err));
+};
+
+/**
+ *
+ * @param {*} req recupere userId via le tokken
+ * @param {*} res return le chaamp admin de l'utilisateur connecté
+ * @param {*} next
+ */
+exports.checkAdmin = async (req, res, next) => {
+  User.findOne({ _id: req.auth.userId })
+    .then((user) => res.status(200).json(user.admin))
+    .catch((err) => res.status(400).json(err));
 };
